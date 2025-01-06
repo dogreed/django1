@@ -1,10 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.http import HttpResponse
 
 from .forms import BookForm 
 
 from .models import Book 
+from .models import Todo
+
+
+
+def home(request):
+   return HttpResponse("Welcome to HomePage")
 
 # Create your views here.
 def home(request):
@@ -27,4 +33,32 @@ def book_data(request):
   form = BookForm()
   return render (request,'myApp/book.html', {'form':form})
 
-    
+
+
+
+def todo_list(request):
+  todos = Todo.objects.order_by('-id')
+  return render(request, 'home.html', {'todos':todos})
+
+def create_todo(request):
+   if request.method == "POST":
+      title = request.POST.get('title')
+      description =  request.POST.get('description')
+      Todo.objects.create(title=title, description=description)
+      return redirect('todo_list')
+   
+def complete_todo(request,todo_id):
+   todo = Todo.objects.get(id=todo_id)
+   todo.complete= True 
+   todo.save()
+   return redirect('todo_list')
+
+def delete_todo(request,todo_id):
+   todo = Todo.objects.get(id=todo_id)
+   todo.delete()
+   return redirect('todo_list')
+
+
+   
+
+   
